@@ -23,7 +23,9 @@
     <textarea placeholder="¿Qué sucedió hoy?"> </textarea>
   </div>
 
-  <Fab />
+  <Fab 
+    icon="fa-save"
+  />
 
   <img
     src="https://images.adsttc.com/media/images/5578/60e4/e58e/cef4/6900/0230/large_jpg/Climbing_Plants_Garden2.jpg"
