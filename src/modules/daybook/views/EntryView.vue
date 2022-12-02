@@ -8,6 +8,13 @@
       </div>
 
       <div>
+        <input
+          type="file"
+          @change="onSelectedImage"
+          ref="imageSelector"
+          v-show="false"
+          accept="image/png, image/jpeg"
+        />
         <button
           v-if="entry.id"
           class="btn btn-danger mx-2"
@@ -16,7 +23,7 @@
           Borrar
           <i class="fa fa-trash-alt"></i>
         </button>
-        <button class="btn btn-primary">
+        <button class="btn btn-primary" @click="onSelectImage">
           Subir fotos
           <i class="fa fa-upload"></i>
         </button>
@@ -29,7 +36,8 @@
       </textarea>
     </div>
     <img
-      src="https://images.adsttc.com/media/images/5578/60e4/e58e/cef4/6900/0230/large_jpg/Climbing_Plants_Garden2.jpg"
+      v-if="localImage"
+      :src="localImage"
       alt="entry-picture"
       class="img-thumbnail"
     />
@@ -59,6 +67,8 @@ export default {
   data() {
     return {
       entry: null,
+      localImage: null,
+      file: null,
     };
   },
 
@@ -137,6 +147,26 @@ export default {
 
         Swal.fire("Eliminado", "", "success");
       }
+    },
+
+    onSelectedImage(event) {
+      const file = event.target.files[0];
+
+      if (!file) {
+        this.localImage = null;
+        this.file = null;
+        return;
+      }
+
+      this.file = file;
+
+      const fr = new FileReader();
+      fr.onload = () => (this.localImage = fr.result);
+      fr.readAsDataURL(file);
+    },
+
+    onSelectImage() {
+      this.$refs.imageSelector.click();
     },
   },
 
