@@ -11,7 +11,8 @@
         <button
           v-if="entry.id"
           class="btn btn-danger mx-2"
-          @click="onDeleteEntry">
+          @click="onDeleteEntry"
+        >
           Borrar
           <i class="fa fa-trash-alt"></i>
         </button>
@@ -34,17 +35,14 @@
     />
   </template>
 
-  <Fab
-    icon="fa-save"
-    @on:click="saveEntry"
-  />
-  
+  <Fab icon="fa-save" @on:click="saveEntry" />
 </template>
 
 <script>
 import { defineAsyncComponent } from "vue";
 import { mapGetters, mapActions } from "vuex";
 import getDayMonthYear from "@/modules/daybook/helpers/getDayMonthYear";
+import Swal from "sweetalert2";
 
 export default {
   props: {
@@ -81,49 +79,65 @@ export default {
   },
 
   methods: {
-
-    ...mapActions('journal',['updateEntry', 'createEntry', 'deleteEntry']),
+    ...mapActions("journal", ["updateEntry", "createEntry", "deleteEntry"]),
 
     loadEntry() {
-
       let entry;
 
-      if( this.id === 'new' ){
+      if (this.id === "new") {
         entry = {
-          text: '',
-          date: new Date().getTime()
-        }
-      }else{
+          text: "",
+          date: new Date().getTime(),
+        };
+      } else {
         entry = this.getEntryById(this.id);
         if (!entry) return this.$router.push({ name: "no-entry" });
       }
 
       this.entry = entry;
-
     },
 
-    async saveEntry(){
-      
-      if( this.entry.id ){
-        await this.updateEntry( this.entry )
-      }else{
-        console.log('Post de una nueva entrada')
-        const id = await this.createEntry( this.entry )
-        this.$router.push( { name:'entry', params:{ id:id } })
+    async saveEntry() {
+      new Swal({
+        title: " Espere por favor ",
+        allowOutsideClick: false,
+      });
+
+      Swal.showLoading();
+
+      if (this.entry.id) {
+        await this.updateEntry(this.entry);
+      } else {
+        console.log("Post de una nueva entrada");
+        const id = await this.createEntry(this.entry);
+        this.$router.push({ name: "entry", params: { id: id } });
       }
 
+      Swal.fire("Guardado", "Entrada registrada con éxito", "success");
     },
 
-    async onDeleteEntry(){
+    async onDeleteEntry() {
+      const { isConfirmed } = await Swal.fire({
+        title: "¿Está seguro?",
+        text: "Una vez borrado, nose puede recuperar",
+        showDenyButton: true,
+        confirmButtonText: "Si, estoy seguro",
+      });
 
-      console.log('delete', this.entry)
+      if (isConfirmed) {
+        new Swal({
+          title: "Espere por favor",
+          allowOutsideClick: false,
+        });
 
-      await this.deleteEntry( this.entry.id )
+        Swal.showLoading();
+        console.log("delete", this.entry);
+        await this.deleteEntry(this.entry.id);
+        this.$router.push({ name: "no-entry" });
 
-      this.$router.push( { name:'no-entry' })
-
-    }
-
+        Swal.fire("Eliminado", "", "success");
+      }
+    },
   },
 
   created() {
