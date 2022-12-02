@@ -36,6 +36,12 @@
       </textarea>
     </div>
     <img
+      v-if="entry.picture && !localImage"
+      :src="entry.picture"
+      alt="entry-picture"
+      class="img-thumbnail"
+    />
+    <img
       v-if="localImage"
       :src="localImage"
       alt="entry-picture"
@@ -51,6 +57,7 @@ import { defineAsyncComponent } from "vue";
 import { mapGetters, mapActions } from "vuex";
 import getDayMonthYear from "@/modules/daybook/helpers/getDayMonthYear";
 import Swal from "sweetalert2";
+import uploadImage from "@/modules/daybook/helpers/uploadImage";
 
 export default {
   props: {
@@ -115,6 +122,10 @@ export default {
 
       Swal.showLoading();
 
+     const picture = await uploadImage( this.file )
+
+     this.entry.picture = picture
+
       if (this.entry.id) {
         await this.updateEntry(this.entry);
       } else {
@@ -123,6 +134,7 @@ export default {
         this.$router.push({ name: "entry", params: { id: id } });
       }
 
+      this.file = null
       Swal.fire("Guardado", "Entrada registrada con éxito", "success");
     },
 
